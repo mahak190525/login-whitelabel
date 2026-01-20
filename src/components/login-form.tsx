@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import {
   Card,
   CardContent,
@@ -25,6 +26,8 @@ export function LoginForm({
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   // Function to sign in with Microsoft or Google
   async function signIn(provider: 'azure' | 'google') {
@@ -37,6 +40,7 @@ export function LoginForm({
       })
       if (error) {
           console.log("Error signing in with",provider,":",error)
+          toast.error(`Error signing in with ${provider}: ${error.message}`)
       } else {
           console.log("Successfully signed in with",provider,":",data)
       }
@@ -44,16 +48,29 @@ export function LoginForm({
 
   // Function to sign in with email and password
   async function signInWithEmail(email: string, password: string) {
+    setError(null)
+    setLoading(true)
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     })
+    
     if (error) {
-      console.log("Error signing in with email and password:",error)
+      console.log("Error signing in with email and password:", error)
+      setError(error.message || "Failed to sign in. Please check your credentials.")
+      toast.error(`Error signing in with email and password: ${error.message}`)
+      setLoading(false)
     } else {
-      console.log("Successfully signed in with email and password:",data)
+      console.log("Successfully signed in with email and password:", data)
       navigate('/success')
+      toast.success("Successfully signed in with email and password")
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    await signInWithEmail(email, password)
   }
 
   return (
@@ -66,8 +83,13 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
+              {error && (
+                <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+                  {error}
+                </div>
+              )}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -77,6 +99,7 @@ export function LoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
                 />
               </Field>
               <Field>
@@ -95,10 +118,13 @@ export function LoginForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
                 />
               </Field>
               <Field>
-                <Button type="submit" onClick={() => signInWithEmail(email, password)}>Login</Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? "Signing in..." : "Login"}
+                </Button>
                 <FieldSeparator className="my-2">Or continue with</FieldSeparator>
                 <Button variant="outline" type="button" onClick={() => signIn('google')}>
                   Login with Google
