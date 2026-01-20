@@ -1,37 +1,24 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { Routes, Route, Link } from 'react-router'
+import { Routes, Route } from 'react-router'
 import './App.css'
 import Login from '@/pages/Login';
 import Success from '@/pages/Success';
-import ResetPassword from '@/pages/ResetPassword'
-import { Button } from '@/components/ui/button'
+import ResetPassword from '@/pages/ResetPassword';
+import UpdatePassword from '@/pages/UpdatePassword';
 import SignUp from '@/pages/SignUp';
 import { Toaster } from '@/components/ui/sonner';
-
-const Home = () => <h2>Home Page</h2>
-const About = () => <h2>About Page</h2>
-// const Login = () => <h2>Login Page</h2>
 
 function App() {
 
   return (
     <>
     <Toaster position="top-right"/>
-    <div>
-      {/* <Button><Link to='/'>Home</Link></Button>
-      <Button><Link to='/about'>About</Link></Button> */}
-      {/* <Button><Link to='/'>Login</Link></Button> */}
-    </div>
 
     <Routes>
-      <Route path='/home' element={<Home />} />
-      <Route path='/about' element={<About />} />
       <Route path='/' element={<Login/>}/>
       <Route path='/signup' element={<SignUp/>}/>
       <Route path='/success' element={<Success/>}/>
       <Route path='/reset-password' element={<ResetPassword/>}/>
+      <Route path='/update-password' element={<UpdatePassword/>}/>
     </Routes>
 
       {/* <div>
