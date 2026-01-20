@@ -1,23 +1,25 @@
+import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
-import { useEffect, useState } from "react";
+import {
+    Field,
+    FieldGroup,
+    FieldLabel,
+  } from "@/components/ui/field"
+import { useState } from "react";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
 
-export async function updatePassword(newPassword: string) {
-    const { data, error } = await supabase.auth.updateUser({
-        password: newPassword,
-    })
-    if (error) {
-        console.log("Error updating password:", error)
-    }
-    else {
-        console.log("Successfully updated password:", data)
-}
-}
+export default function ResetPasswordForm({
+    className,
+    ...props
+}: React.ComponentProps<"div">) {
 
-export default function ResetPasswordForm() {
+    const [email, setEmail] = useState('')
+    const [loading, setLoading] = useState(false)
 
+    // Function to reset password (send reset email)
     async function resetPassword(email: string) {
         const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
             redirectTo: window.location.origin + "/update-password",
@@ -29,44 +31,36 @@ export default function ResetPasswordForm() {
             console.log("Successfully reset password:", data)
         }
     }
-    
-    useEffect(() => {
-        supabase.auth.onAuthStateChange(async (event, session) => {
-          if (event == "PASSWORD_RECOVERY") {
-            const newPassword = prompt("What would you like your new password to be?");
-            const { data, error } = await supabase.auth
-              .updateUser({ password: newPassword as string })
-            if (data) alert("Password updated successfully!")
-            if (error) alert("There was an error updating your password.")
-          }
-        })
-      }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    await resetPassword(email)
-  }
-  const [email, setEmail] = useState('')
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        setLoading(true)
+        await resetPassword(email)
+        setEmail('')
+        toast.success("Open the link sent to your email to reset your password!")
+        setLoading(false)
+    }
+
   return (
-    <>
-    {/* <div>reset-password-form</div> */}
+    <div className={cn("", className)} {...props}>
         <Card>
         <CardHeader>
             <CardTitle>Reset Password</CardTitle>
         </CardHeader>
         <CardContent>
             <form onSubmit={handleSubmit}>
-            <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            {/* <Button type="submit">Reset Password</Button> */}
-            <Button type="submit">Reset Password</Button>
+            <FieldGroup>
+                <Field>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
+                    <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </Field>
+                <Field>
+                    <Button type="submit" disabled={loading}>{loading ? "Sending reset email..." : "Reset Password"}</Button>
+                </Field>
+            </FieldGroup>
             </form>
         </CardContent>
-        {/* <CardContent>
-            <form>
-            <Input type="password" placeholder="New Password" />
-            </form>
-        </CardContent> */}
         </Card>
-    </>
+    </div>
   )
 }

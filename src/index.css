@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* @custom-variant dark (&:is(.dark *)); */
 /* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -185,7 +185,19 @@ button:focus-visible {
   * {
     @apply border-border outline-ring/50;
   }
+  html, body {
+    @apply h-full;
+  }
   body {
     @apply bg-background text-foreground;
+  }
+  #root {
+    @apply h-full;
+  }
+}
+
+@layer utilities {
+  .page-layout {
+    @apply h-full flex items-center justify-center;
   }
 }

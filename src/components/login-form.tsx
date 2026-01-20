@@ -29,21 +29,29 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
   // Function to sign in with Microsoft or Google
   async function signIn(provider: 'azure' | 'google') {
-      const {data, error} = await supabase.auth.signInWithOAuth({
-          provider: provider,
-          options: {
-              scopes: 'email openid',
-              redirectTo: window.location.origin,
-          },
-      })
-      if (error) {
-          console.log("Error signing in with",provider,":",error)
-          toast.error(`Error signing in with ${provider}: ${error.message}`)
-      } else {
-          console.log("Successfully signed in with",provider,":",data)
+    const options: any = {
+      scopes: 'email openid',
+      redirectTo: window.location.origin,
+    }
+    
+    // Add prompt parameter for Azure to force account selection
+    if (provider === 'azure') {
+      options.queryParams = {
+        prompt: 'select_account'
       }
+    }
+    
+    const {error} = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: options,
+    })
+    if (error) {
+      console.log("Error signing in with",provider,":",error)
+      toast.error(`Error signing in with ${provider}: ${error.message}`)
+    }
   }
 
   // Function to sign in with email and password
@@ -106,7 +114,7 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <a
-                    href="#"
+                    href="/reset-password"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
