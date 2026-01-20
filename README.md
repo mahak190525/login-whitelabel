@@ -1,73 +1,81 @@
-# React + TypeScript + Vite
+# Login Whitelabel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A whitelabel authentication application built with React and Supabase, supporting multiple authentication providers.
 
-Currently, two official plugins are available:
+## Authentication Providers
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This application supports authentication through Supabase's built-in auth providers. Follow the configuration steps below for each provider you want to enable.
 
-## React Compiler
+### Google OAuth
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Create a project in Google Cloud Console**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select an existing one
 
-## Expanding the ESLint configuration
+2. **Enable the Gmail API**
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Gmail API" and enable it
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+3. **Create OAuth Client IDs**
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "OAuth client ID"
+   - Select "Web application" as the application type
+   - In the "Authorized redirect URIs" section, add your Supabase callback URL:
+     ```
+     https://<your-project-ref>.supabase.co/auth/v1/callback
+     ```
+   - Copy the Client ID and Client Secret
+   - Enter these credentials in your Supabase project dashboard under Authentication > Providers > Google
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Microsoft OAuth
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Create an app in Microsoft Azure Portal**
+   - Go to [Azure Portal](https://portal.azure.com/)
+   - Navigate to "Azure Active Directory" > "App registrations"
+   - Click "New registration" to create a new app
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Create a client secret**
+   - In your app registration, go to "Certificates & secrets"
+   - Click "New client secret"
+   - Copy the secret value (you'll only see it once)
+
+3. **Configure redirect URI**
+   - Go to "Authentication" in your app registration
+   - Under "Platform configurations", click "Add a platform" > "Web"
+   - Add your Supabase callback URL:
+     ```
+     https://<your-project-ref>.supabase.co/auth/v1/callback
+     ```
+   - Copy the Application (client) ID and Directory (tenant) ID
+   - Enter these details along with the client secret in your Supabase project dashboard under Authentication > Providers > Microsoft
+
+### Form Authentication
+
+Form-based authentication (email/password) requires no additional configuration. It's enabled by default in Supabase.
+
+## Environment Variables
+
+Create a `.env` file in the root of your project and add the following variables:
+
+```env
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+You can find these values in your Supabase project dashboard under Settings > API.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Getting Started
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Set up your environment variables (see above)
+
+3. Configure your authentication providers in Supabase dashboard
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
